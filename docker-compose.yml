@@ -1,0 +1,59 @@
+version: '3.7'
+services:
+  backend:
+    build:
+        context: ./fast-laravel
+        dockerfile: Dockerfile
+    environment:
+      DB_HOST: db
+      DB_DATABASE: restaurent
+      DB_USERNAME: root
+      DB_PASSWORD: password
+    ports:
+        - 8000:8000
+    volumes:
+        - './fast-laravel:/ProjectFE/fast-laravel'
+    depends_on:
+        - db
+    networks:
+        - app
+
+  frontend:
+    build:
+      context: ./fast-react
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - './fast-react:/ProjectFE/fast-react'
+    # depends_on:
+    #   - backend
+    networks:
+      - app
+ 
+  api:
+    image: spacelearn/php:8.0-apache
+    ports:
+      - "8080:80"
+    volumes:
+      - ./fast-laravel:/ProjectFE/fast-laravel'
+
+  db:
+    image: 'mysql:8.0'
+    # ports:
+    #     - '${FORWARD_DB_PORT:-3306}:3306'
+    environment:
+        MYSQL_DATABASE: restaurent
+        MYSQL_USER: root
+        MYSQL_PASSWORD: password
+        MYSQL_ROOT_PASSWORD: password
+    volumes:
+        - './fast-laravel/volume/mysql:/var/lib/mysql'
+    networks:
+        - app
+
+networks:
+  app:
+    driver: bridge
+  
